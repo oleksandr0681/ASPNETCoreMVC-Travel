@@ -1,0 +1,97 @@
+﻿@model IEnumerable<Travel.Models.Place>
+
+@{
+    ViewData["Title"] = "IndexModerator";
+}
+
+<h1>IndexModerator</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ApplicationUser.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Data)
+            </th>
+            @* <th>
+                @Html.DisplayNameFor(model => model.PictureMimeType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FileName)
+            </th> *@
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Country)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.City)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsConfirmed)
+            </th>
+            @* <th>
+                @Html.DisplayNameFor(model => model.Created)
+            </th> *@
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ApplicationUser.UserName)
+            </td>
+            <td>
+                @* @Html.DisplayFor(modelItem => item.Data) *@
+                @if( item.Data != null )
+                {
+                    <img class="placesIndexImage" 
+                        src="data:image/jpeg;base64,@(Convert.ToBase64String(item.Data))" />
+                }
+            </td>
+           @*  <td>
+                @Html.DisplayFor(modelItem => item.PictureMimeType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FileName)
+            </td> *@
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Country)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.City)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsConfirmed)
+            </td>
+            @* <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td> *@
+            <td>
+                <a asp-action="EditModerator" asp-route-id="@item.Id">Edit</a> |
+                @* <a asp-action="Details" asp-route-id="@item.Id">Details</a> | *@
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

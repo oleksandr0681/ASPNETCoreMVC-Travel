@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Travel.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ApplicationUser? user = await UserManager.GetUserAsync(User);
+    IList<string> userRoles = new List<string>();
+    if (user != null)
+    {
+        userRoles = await UserManager.GetRolesAsync(user);
+    }
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <form asp-controller="Account" asp-action="LogOff" method="post" id="logoutForm" class="navbar-right">
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a class="nav-link" asp-controller="Manage" asp-action="Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+            </li>
+            <li>
+                <a class="nav-link" asp-controller="Places" asp-action="Index">Місця</a>
+            </li>
+            <li>
+                <a class="nav-link" asp-controller="Marks" asp-action="Index">Оцінка</a>
+            </li>
+            <li>
+                <a class="nav-link" asp-controller="Selects" asp-action="Index">Обране</a>
+            </li>
+            @if (userRoles.Contains("Moderator"))
+            {
+                <li>
+                    <a class="nav-link" asp-controller="Places" asp-action="IndexModerator">Модератор</a>
+                </li>
+            }
+            <li>
+                <button type="submit" class="btn btn-link navbar-btn navbar-link">Log off</button>
+            </li>
+        </ul>
+    </form>
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li><a asp-controller="Account" asp-action="Register">Register</a></li>
+        <li><a asp-controller="Account" asp-action="Login">Log in</a></li>
+    </ul>
+}
