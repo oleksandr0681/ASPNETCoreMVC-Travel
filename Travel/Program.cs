@@ -29,7 +29,9 @@ namespace Travel
                 o.DefaultScheme = IdentityConstants.ApplicationScheme;
                 o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             }).AddIdentityCookies(o => { });
-            
+            builder.Services.AddDistributedMemoryCache(); // Додаю використання IDistributedCache.
+            builder.Services.AddSession(); // Додаю сервіси сесії.
+
             // Add application services.
             builder.Services.AddTransient<IEmailSender, AuthMessageSender>();
             builder.Services.AddTransient<ISmsSender, AuthMessageSender>();
@@ -78,6 +80,7 @@ namespace Travel
                     logger.LogError(ex, ex.Message);
                 }
             }
+            app.UseSession(); // Додаю middleware для роботи з сесіями.
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

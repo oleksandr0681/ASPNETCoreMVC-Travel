@@ -4,6 +4,10 @@
     ViewData["Title"] = "Details";
 }
 
+@{
+    Context.Session.SetInt32("PlaceId", Model.Id);
+}
+
 <h1>Details</h1>
 
 <div>
@@ -65,5 +69,25 @@
     </dl>
 </div>
 <div>
+    <a asp-controller="Marks" asp-action="Mark">Оцінити</a>
+</div>
+<div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+<h3>Оцінки</h3>
+@if (ViewBag.Marks != null && ViewBag.Marks is List<Mark>)
+{
+    List<Mark> marks = ViewBag.Marks;
+    foreach (Mark mark in marks)
+    {
+        <div class="markCard shadow">
+            <div>
+                <p>@mark.ApplicationUser.UserName</p>
+                <p>Оцінка: @mark.Point</p>
+                <p>@mark.Created</p>
+            </div>
+            <div>@mark.Commentary</div>
+        </div>
+    }
+}

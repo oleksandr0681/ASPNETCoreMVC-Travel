@@ -6,14 +6,17 @@
 
 <h1>Index</h1>
 
-<p>
+@* <p>
     <a asp-action="Create">Create New</a>
-</p>
+</p> *@
 <table class="table">
     <thead>
         <tr>
-            <th>
+            @* <th>
                 @Html.DisplayNameFor(model => model.ApplicationUser)
+            </th> *@
+            <th>
+                @Html.DisplayNameFor(model => model.Place)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Point)
@@ -21,20 +24,20 @@
             <th>
                 @Html.DisplayNameFor(model => model.Commentary)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Place)
-            </th>
-            <th>
+            @* <th>
                 @Html.DisplayNameFor(model => model.Created)
-            </th>
+            </th> *@
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            @* <td>
+                @Html.DisplayFor(modelItem => item.ApplicationUser.UserName)
+            </td> *@
             <td>
-                @Html.DisplayFor(modelItem => item.ApplicationUser.Id)
+                @Html.DisplayFor(modelItem => item.Place.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Point)
@@ -42,12 +45,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Commentary)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Place.ApplicationUserId)
-            </td>
-            <td>
+            @* <td>
                 @Html.DisplayFor(modelItem => item.Created)
-            </td>
+            </td> *@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |

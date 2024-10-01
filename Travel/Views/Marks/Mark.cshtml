@@ -1,22 +1,33 @@
 ﻿@model Travel.Models.Mark
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Mark";
 }
 
-<h1>Edit</h1>
+<h1>Оцінювання</h1>
 
 <h4>Mark</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        @if (ViewBag.Place != null)
+        {
+            @if (ViewBag.Place.Data != null)
+            {
+                <img class="placesDetailsImage"
+                     src="data:image/jpeg;base64,@(Convert.ToBase64String(@ViewBag.Place.Data))" />
+            }
+            <p>@ViewBag.Place.Name</p>
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Mark">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
             <div class="form-group" hidden>
                 <label asp-for="ApplicationUserId" class="control-label"></label>
-                <select asp-for="ApplicationUserId" class="form-control" asp-items="ViewBag.ApplicationUserId"></select>
-                <span asp-validation-for="ApplicationUserId" class="text-danger"></span>
+                <select asp-for="ApplicationUserId" class ="form-control" asp-items="ViewBag.ApplicationUserId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Point" class="control-label"></label>
@@ -28,10 +39,9 @@
                 <input asp-for="Commentary" class="form-control" />
                 <span asp-validation-for="Commentary" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" hidden>
                 <label asp-for="PlaceId" class="control-label"></label>
-                <select asp-for="PlaceId" class="form-control" asp-items="ViewBag.PlaceId"></select>
-                <span asp-validation-for="PlaceId" class="text-danger"></span>
+                <select asp-for="PlaceId" class ="form-control" asp-items="ViewBag.PlaceId"></select>
             </div>
             <div class="form-group" hidden>
                 <label asp-for="Created" class="control-label"></label>
@@ -39,14 +49,14 @@
                 <span asp-validation-for="Created" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Оцінити" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-controller="Home" asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

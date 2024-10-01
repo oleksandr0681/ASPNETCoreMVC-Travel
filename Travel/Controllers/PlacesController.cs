@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Travel.Models;
-using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Http;
 
 namespace Travel.Controllers
 {
@@ -96,6 +96,7 @@ namespace Travel.Controllers
                 if (placesQuantity >= _maxPlacesQuantity)
                 {
                     ModelState.AddModelError("", "Кількість місць перевищує " + _maxPlacesQuantity + ".");
+                    ViewData["ApplicationUserId"] = new SelectList(_context.Users.Where(u => u.Id == place.ApplicationUserId), "Id", "Id", place.ApplicationUserId);
                     return View(place);
                 }
                 if (formFile != null)
@@ -104,6 +105,7 @@ namespace Travel.Controllers
                     if (formFile.ContentType.ToLower().StartsWith("image/") == false)
                     {
                         ModelState.AddModelError("", "Файл не є фотографією.");
+                        ViewData["ApplicationUserId"] = new SelectList(_context.Users.Where(u => u.Id == place.ApplicationUserId), "Id", "Id", place.ApplicationUserId);
                         return View(place);
                     }
                     byte[]? photographData = null;

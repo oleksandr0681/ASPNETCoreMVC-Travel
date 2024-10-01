@@ -20,6 +20,25 @@
     margin: 10px;
     padding: 5px;
     width: 30%;
-    height: 400px;
+    height: 200px;
+}
+
+.placeCard p {
+    height: 60px;
     overflow: auto;
+    text-align: center;
+}
+
+.photograph > img {
+    margin-bottom: 5px;
+    height: 130px;
+    object-fit: contain;
+}
+
+.markCard {
+    margin: 20px 0;
+    padding: 10px;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: 20% 1fr;
 }

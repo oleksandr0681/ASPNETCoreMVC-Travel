@@ -15,7 +15,7 @@
             @Html.DisplayNameFor(model => model.ApplicationUser)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ApplicationUser.Id)
+            @Html.DisplayFor(model => model.ApplicationUser.UserName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Point)
@@ -33,7 +33,7 @@
             @Html.DisplayNameFor(model => model.Place)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Place.ApplicationUserId)
+            @Html.DisplayFor(model => model.Place.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Created)

@@ -11,6 +11,7 @@ using Travel.Models;
 
 namespace Travel.Controllers
 {
+    [Authorize]
     public class MarksController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,7 +26,15 @@ namespace Travel.Controllers
         // GET: Marks
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Marks.Include(m => m.ApplicationUser).Include(m => m.Place);
+            ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+            var applicationDbContext = _context.Marks
+                .Where(m => m.ApplicationUserId == currentUser.Id 
+                && m.ApplicationUser != null && m.Place != null)
+                .Include(m => m.ApplicationUser).Include(m => m.Place);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -50,28 +59,101 @@ namespace Travel.Controllers
         }
 
         // GET: Marks/Create
-        public IActionResult Create()
-        {
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId");
-            return View();
-        }
+        //public IActionResult Create()
+        //{
+        //    ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id");
+        //    ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId");
+        //    return View();
+        //}
 
         // POST: Marks/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("Id,ApplicationUserId,Point,Commentary,PlaceId,Created")] Mark mark)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(mark);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", mark.ApplicationUserId);
+        //    ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId", mark.PlaceId);
+        //    return View(mark);
+        //}
+
+        // GET: Marks/Mark/5
+        [HttpGet]
+        //[Route("Marks/Mark/{placeId?}")]
+        public async Task<IActionResult> Mark()
+        //public IActionResult Mark()
+        {
+            ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+            int? placeId = HttpContext.Session.GetInt32("PlaceId");
+            if (placeId == null)
+            {
+                ViewData["ErrorMessage"] = "Помилка передачі ідентифікатора.";
+                return View("~/Views/Shared/HandleError.cshtml");
+            }
+            Place? place = await _context.Places.Where(p => p.Id == placeId).FirstOrDefaultAsync();
+            if (place == null)
+            {
+                ViewData["ErrorMessage"] = "Місце не знайдене.";
+                return View("~/Views/Shared/HandleError.cshtml");
+            }
+            ViewData["Place"] = place;
+            ViewData["ApplicationUserId"] = new SelectList(_context.Users.Where(u => u.Id == currentUser.Id), "Id", "UserName");
+            ViewData["PlaceId"] = new SelectList(_context.Places.Where(p => p.Id == placeId), "Id", "Name");
+            return View();
+        }
+
+        // POST: Marks/Mark
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ApplicationUserId,Point,Commentary,PlaceId,Created")] Mark mark)
+        public async Task<IActionResult> Mark(Mark mark)
         {
             if (ModelState.IsValid)
             {
+                ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                if (currentUser == null)
+                {
+                    return Unauthorized();
+                }
+                Place? place = await _context.Places.Where(p => p.Id == mark.PlaceId).FirstOrDefaultAsync();
+                if (place == null)
+                {
+                    ViewData["ErrorMessage"] = "Місце не знайдене.";
+                    return View("~/Views/Shared/HandleError.cshtml");
+                }
+                if (place.ApplicationUserId == currentUser.Id)
+                {
+                    ModelState.AddModelError("", "Оцінювати можна тільки місця інших користувачів.");
+                    ViewData["ApplicationUserId"] = new SelectList(_context.Users.Where(u => u.Id == mark.ApplicationUserId), "Id", "UserName", mark.ApplicationUserId);
+                    ViewData["PlaceId"] = new SelectList(_context.Places.Where(p => p.Id == mark.PlaceId), "Id", "Name", mark.PlaceId);
+                    return View(mark);
+                }
+                int markQuantity = _context.Marks
+                    .Where(m => m.ApplicationUserId == currentUser.Id 
+                    && m.PlaceId == place.Id).Count();
+                if (markQuantity > 0)
+                {
+                    ModelState.AddModelError("", "Ви вже оцінювали це місце.");
+                    ViewData["ApplicationUserId"] = new SelectList(_context.Users.Where(u => u.Id == mark.ApplicationUserId), "Id", "UserName", mark.ApplicationUserId);
+                    ViewData["PlaceId"] = new SelectList(_context.Places.Where(p => p.Id == mark.PlaceId), "Id", "Name", mark.PlaceId);
+                    return View(mark);
+                }
+                mark.Created = DateTime.Now;
                 _context.Add(mark);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), "Home");
             }
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", mark.ApplicationUserId);
-            ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId", mark.PlaceId);
+            ViewData["ApplicationUserId"] = new SelectList(_context.Users.Where(u => u.Id == mark.ApplicationUserId), "Id", "UserName", mark.ApplicationUserId);
+            ViewData["PlaceId"] = new SelectList(_context.Places.Where(p => p.Id == mark.PlaceId), "Id", "Name", mark.PlaceId);
             return View(mark);
         }
 
@@ -88,8 +170,23 @@ namespace Travel.Controllers
             {
                 return NotFound();
             }
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", mark.ApplicationUserId);
-            ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId", mark.PlaceId);
+            ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+            else if (currentUser.Id != mark.ApplicationUserId)
+            {
+                return View("AccessDenied");
+            }
+            Place? place = await _context.Places.Where(p => p.Id == mark.PlaceId).FirstOrDefaultAsync();
+            if (place == null)
+            {
+                ViewData["ErrorMessage"] = "Місце не знайдене.";
+                return View("~/Views/Shared/HandleError.cshtml");
+            }
+            ViewData["ApplicationUserId"] = new SelectList(_context.Users.Where(u => u.Id == currentUser.Id), "Id", "UserName", mark.ApplicationUserId);
+            ViewData["PlaceId"] = new SelectList(_context.Places.Where(p => p.Id == place.Id), "Id", "Name", mark.PlaceId);
             return View(mark);
         }
 
@@ -125,8 +222,8 @@ namespace Travel.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", mark.ApplicationUserId);
-            ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId", mark.PlaceId);
+            ViewData["ApplicationUserId"] = new SelectList(_context.Users.Where(u => u.Id == mark.ApplicationUserId), "Id", "Id", mark.ApplicationUserId);
+            ViewData["PlaceId"] = new SelectList(_context.Places.Where(p => p.Id == mark.PlaceId), "Id", "ApplicationUserId", mark.PlaceId);
             return View(mark);
         }
 
@@ -146,6 +243,15 @@ namespace Travel.Controllers
             {
                 return NotFound();
             }
+            ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+            if (currentUser.Id != mark.ApplicationUserId)
+            {
+                return View("AccessDenied");
+            }
 
             return View(mark);
         }
@@ -158,6 +264,15 @@ namespace Travel.Controllers
             var mark = await _context.Marks.FindAsync(id);
             if (mark != null)
             {
+                ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                if (currentUser == null)
+                {
+                    return Unauthorized();
+                }
+                if (currentUser.Id != mark.ApplicationUserId)
+                {
+                    return View("AccessDenied");
+                }
                 _context.Marks.Remove(mark);
             }
 
