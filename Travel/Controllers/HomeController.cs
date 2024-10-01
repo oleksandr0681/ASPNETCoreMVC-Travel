@@ -22,11 +22,6 @@ namespace Travel.Controllers
             _userManager = userManager;
         }
 
-        //[Route("")]
-        //[Route("Home")]
-        //[Route("Home/Index")]
-        //[Route("Home/Index/{country}")]
-        //[Route("Home/Index/{country}/{city}")]
         public IActionResult Index(string? country, string? city)
         {
             IEnumerable<Place> places = new List<Place>();
@@ -71,16 +66,6 @@ namespace Travel.Controllers
                 .OrderBy(p => p.Country).ThenBy(p => p.City);
                 }
             }
-            return View(places.ToList());
-        }
-
-        // GET: Home/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
             var place = await _context.Places
                 .Include(p => p.ApplicationUser)
@@ -89,9 +74,6 @@ namespace Travel.Controllers
             {
                 return NotFound();
             }
-
-            return View(place);
-        }
 
         public IActionResult Privacy()
         {
