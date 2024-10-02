@@ -8,6 +8,30 @@
     Context.Session.SetInt32("PlaceId", Model.Id);
 }
 
+@using Microsoft.AspNetCore.Identity
+@using Travel.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    bool IsSelected = false;
+    string applicationUserId = string.Empty;
+    int placeId = Model.Id;
+    ApplicationUser? user = await UserManager.GetUserAsync(User);
+    Select? select;
+    if (ViewBag.Select != null && ViewBag.Select is Select)
+    {
+        select = ViewBag.Select;
+        IsSelected = select.IsSelected;
+    }
+    if (user != null)
+    {
+        applicationUserId = user.Id;
+    }
+}
+
+
 <h1>Details</h1>
 
 <div>
@@ -69,11 +93,19 @@
     </dl>
 </div>
 <div>
-    <a asp-controller="Marks" asp-action="Mark">Оцінити</a>
-</div>
-<div>
     <a asp-action="Index">Back to List</a>
 </div>
+@if (user != null)
+{
+    <div class="authorized">
+        <a asp-controller="Marks" asp-action="Mark">Оцінити</a>
+        <label>
+            <input type="checkbox" checked=@IsSelected class="select" 
+                data-user-id="@applicationUserId" data-place-id="@placeId" />
+            Обране
+        </label>
+    </div>
+}
 
 <h3>Оцінки</h3>
 @if (ViewBag.Marks != null && ViewBag.Marks is List<Mark>)
@@ -82,12 +114,45 @@
     foreach (Mark mark in marks)
     {
         <div class="markCard shadow">
-            <div>
+            <div class="markCard__mark">
                 <p>@mark.ApplicationUser.UserName</p>
                 <p>Оцінка: @mark.Point</p>
                 <p>@mark.Created</p>
             </div>
-            <div>@mark.Commentary</div>
+            <div class="markCard__Commentary">@mark.Commentary</div>
         </div>
     }
 }
+
+<script>
+    // Коли документ (сторінка) завантажився.
+    document.addEventListener("DOMContentLoaded", documentReady);
+
+    function documentReady() {
+        const selectCheckbox = document.querySelector('.select');
+        // console.log(selectCheckbox);
+        if (selectCheckbox != null) {
+            selectCheckbox.addEventListener("click", function (event) { 
+                // console.log(selectCheckbox.checked);
+                let d = selectCheckbox.dataset;
+                console.log(d);
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("SelectCheckAjax", "Selects")",
+                    data: {
+                        userId: selectCheckbox.dataset.userId,
+                        placeId: selectCheckbox.dataset.placeId,
+                        placeChecked: selectCheckbox.checked
+                    },
+                    dataType: "text",
+                    success: function (message) {
+                        console.log(message);
+                    },
+                    error: function (req, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+        }
+    }
+</script>

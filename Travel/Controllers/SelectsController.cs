@@ -11,6 +11,7 @@ using Travel.Models;
 
 namespace Travel.Controllers
 {
+    [Authorize]
     public class SelectsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,144 +26,235 @@ namespace Travel.Controllers
         // GET: Selects
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Selects.Include(s => s.ApplicationUser).Include(s => s.Place);
-            return View(await applicationDbContext.ToListAsync());
-        }
-
-        // GET: Selects/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            //var applicationDbContext = _context.Selects.Include(s => s.ApplicationUser).Include(s => s.Place);
+            //return View(await applicationDbContext.ToListAsync());
+            ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
             {
-                return NotFound();
+                return Unauthorized();
             }
-
-            var @select = await _context.Selects
-                .Include(s => s.ApplicationUser)
-                .Include(s => s.Place)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@select == null)
+            IEnumerable<Select> selects = _context.Selects
+                .Where(s => s.ApplicationUserId == currentUser.Id
+                && s.IsSelected == true);
+            List<int> placesId = new List<int>();
+            foreach (Select select in selects)
             {
-                return NotFound();
+                placesId.Add(select.PlaceId);
             }
-
-            return View(@select);
+            IEnumerable<Place> places = _context.Places
+                .Where(p => placesId.Contains(p.Id))
+                .Include(p => p.ApplicationUser)
+                .OrderBy(p => p.Country).ThenBy(p => p.City);
+            return View(places.ToList());
         }
 
-        // GET: Selects/Create
-        public IActionResult Create()
-        {
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "Id");
-            return View();
-        }
+        //// GET: Selects/Details/5
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-        // POST: Selects/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //    var @select = await _context.Selects
+        //        .Include(s => s.ApplicationUser)
+        //        .Include(s => s.Place)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (@select == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(@select);
+        //}
+
+        //// GET: Selects/Create
+        //public IActionResult Create()
+        //{
+        //    ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id");
+        //    ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId");
+        //    return View();
+        //}
+
+        //// POST: Selects/Create
+        //// To protect from overposting attacks, enable the specific properties you want to bind to.
+        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("Id,ApplicationUserId,PlaceId,IsSelected")] Select select)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(select);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", select.ApplicationUserId);
+        //    ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId", select.PlaceId);
+        //    return View(select);
+        //}
+
+        //// GET: Selects/Edit/5
+        //public async Task<IActionResult> Edit(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var select = await _context.Selects.FindAsync(id);
+        //    if (select == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", select.ApplicationUserId);
+        //    ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId", select.PlaceId);
+        //    return View(select);
+        //}
+
+        //// POST: Selects/Edit/5
+        //// To protect from overposting attacks, enable the specific properties you want to bind to.
+        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, [Bind("Id,ApplicationUserId,PlaceId,IsSelected")] Select select)
+        //{
+        //    if (id != select.Id)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            _context.Update(select);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            if (!SelectExists(select.Id))
+        //            {
+        //                return NotFound();
+        //            }
+        //            else
+        //            {
+        //                throw;
+        //            }
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", select.ApplicationUserId);
+        //    ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "ApplicationUserId", select.PlaceId);
+        //    return View(select);
+        //}
+
+        //// GET: Selects/Delete/5
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var select = await _context.Selects
+        //        .Include(s => s.ApplicationUser)
+        //        .Include(s => s.Place)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (select == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(select);
+        //}
+
+        //// POST: Selects/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var @select = await _context.Selects.FindAsync(id);
+        //    if (@select != null)
+        //    {
+        //        _context.Selects.Remove(@select);
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
+
+        // POST: Selects/SelectCheckAjax/dfso/5/5/true
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ApplicationUserId,PlaceId")] Select @select)
+        [Route("Selects/SelectCheckAjax/{userId?}/{placeId:int?}/{placeChecked:bool?}")]
+        public async Task<string> SelectCheckAjax(string? userId, int? placeId, bool? placeChecked)
         {
-            if (ModelState.IsValid)
+            string message = string.Empty;
+            ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
             {
-                _context.Add(@select);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                message = "Користувач не авторизований.";
+                return message;
             }
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", @select.ApplicationUserId);
-            ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "Id", @select.PlaceId);
-            return View(@select);
-        }
-
-        // GET: Selects/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
+            if (currentUser.Id != userId)
             {
-                return NotFound();
+                message = "Доступ заборонений.";
+                return message;
             }
-
-            var @select = await _context.Selects.FindAsync(id);
-            if (@select == null)
+            if (placeId == null)
             {
-                return NotFound();
+                message = "Ідентифікатор місця вісутній.";
+                return message;
             }
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", @select.ApplicationUserId);
-            ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "Id", @select.PlaceId);
-            return View(@select);
-        }
-
-        // POST: Selects/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ApplicationUserId,PlaceId")] Select @select)
-        {
-            if (id != @select.Id)
+            if (placeChecked == null)
             {
-                return NotFound();
+                message = "Відмітка обраного вістутня.";
+                return message;
             }
-
-            if (ModelState.IsValid)
+            Select? select = await _context.Selects
+                .Where(s => s.ApplicationUserId == userId && s.PlaceId == placeId)
+                .FirstOrDefaultAsync();
+            if (select == null)
             {
+                Select newSelect = new Select 
+                { 
+                    ApplicationUserId = userId, 
+                    PlaceId = (int)placeId, 
+                    IsSelected = placeChecked.Value
+                };
                 try
                 {
-                    _context.Update(@select);
+                    _context.Add(newSelect);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!SelectExists(@select.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    message = ex.Message;
+                    return message;
                 }
-                return RedirectToAction(nameof(Index));
+                
             }
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", @select.ApplicationUserId);
-            ViewData["PlaceId"] = new SelectList(_context.Places, "Id", "Id", @select.PlaceId);
-            return View(@select);
-        }
-
-        // GET: Selects/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
+            select = await _context.Selects
+                .Where(s => s.ApplicationUserId == userId && s.PlaceId == placeId)
+                .FirstOrDefaultAsync();
+            if (select == null)
             {
-                return NotFound();
+                message = "Обране не знайдене";
+                return message;
             }
-
-            var @select = await _context.Selects
-                .Include(s => s.ApplicationUser)
-                .Include(s => s.Place)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@select == null)
+            select.IsSelected = placeChecked.Value;
+            try
             {
-                return NotFound();
+                _context.Update(select);
+                await _context.SaveChangesAsync();
+                message = "Виконано.";
             }
-
-            return View(@select);
-        }
-
-        // POST: Selects/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var @select = await _context.Selects.FindAsync(id);
-            if (@select != null)
+            catch (Exception ex)
             {
-                _context.Selects.Remove(@select);
+                message = ex.Message;
+                return message;
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return message;
         }
 
         private bool SelectExists(int id)

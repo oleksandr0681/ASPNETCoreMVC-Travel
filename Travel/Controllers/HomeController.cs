@@ -48,11 +48,24 @@ namespace Travel.Controllers
             }
             IEnumerable<Mark> marks = _context.Marks
                 .Where(m => m.PlaceId == place.Id && m.Place != null 
-                && m.ApplicationUser != null).Include(m => m.ApplicationUser)
+                && m.ApplicationUser != null)
+                .OrderByDescending(m => m.Created)
+                .Include(m => m.ApplicationUser)
                 .Include(m => m.Place);
             if (marks != null)
             {
                 ViewData["Marks"] = marks.ToList();
+            }
+            ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser != null)
+            {
+                Select? select = _context.Selects
+                    .Where(s => s.ApplicationUserId == currentUser.Id && s.PlaceId == place.Id)
+                    .FirstOrDefault();
+                if (select != null)
+                {
+                    ViewData["Select"] = select;
+                }
             }
 
             return View(place);

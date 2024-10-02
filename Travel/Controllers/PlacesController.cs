@@ -27,10 +27,17 @@ namespace Travel.Controllers
         }
 
         // GET: Places
-        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Places.Include(p => p.ApplicationUser);
+            ApplicationUser? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+            var applicationDbContext = _context.Places
+                .Where(p => p.ApplicationUserId == currentUser.Id 
+                && p.ApplicationUser != null)
+                .Include(p => p.ApplicationUser);
             return View(await applicationDbContext.ToListAsync());
         }
 

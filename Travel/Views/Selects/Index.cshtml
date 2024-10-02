@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Travel.Models.Select>
+﻿@* @model IEnumerable<Travel.Models.Select>
 
 @{
     ViewData["Title"] = "Index";
@@ -18,6 +18,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Place)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsSelected)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -28,7 +31,10 @@
                 @Html.DisplayFor(modelItem => item.ApplicationUser.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Place.Id)
+                @Html.DisplayFor(modelItem => item.Place.ApplicationUserId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsSelected)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -38,4 +44,32 @@
         </tr>
 }
     </tbody>
-</table>
+</table> *@
+
+@model IEnumerable<Travel.Models.Place>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Обране</h1>
+
+<div id="places">
+    @foreach (Place? place in Model)
+    {
+        <div class="placeCard shadow-lg">
+            <a asp-controller="Home" asp-action="Details" asp-route-id="@place.Id">
+                <div>
+                    <div class="photograph">
+                        @if (place.Data != null)
+                        {
+                            <img class="placesDetailsImage"
+                                 src="data:image/jpeg;base64,@(Convert.ToBase64String(place.Data))" />
+                        }
+                    </div>
+                    <p>@place.Name</p>
+                </div>
+            </a>
+        </div>
+    }
+</div>

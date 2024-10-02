@@ -35,10 +35,28 @@
     object-fit: contain;
 }
 
+.authorized {
+    margin: 10px 0;
+    display: flex;
+    justify-content:space-between;
+}
+
 .markCard {
     margin: 20px 0;
     padding: 10px;
     overflow: auto;
-    display: grid;
-    grid-template-columns: 20% 1fr;
+    /*display: grid;
+    grid-template-columns: 20% 1fr;*/
+    display: flex;
+    flex-wrap: wrap;
 }
+
+
+.markCard__mark {
+    width: 20%;
+}
+
+.markCard__Commentary {
+    flex-grow: 1;
+}
+

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Travel.Models;
 
@@ -11,9 +12,11 @@ using Travel.Models;
 namespace Travel.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241002132551_PropertiesChange2")]
+    partial class PropertiesChange2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,7 +254,7 @@ namespace Travel.Migrations
 
                     b.HasIndex("PlaceId");
 
-                    b.ToTable("Marks", (string)null);
+                    b.ToTable("Marks");
                 });
 
             modelBuilder.Entity("Travel.Models.Place", b =>
@@ -307,7 +310,7 @@ namespace Travel.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Places", (string)null);
+                    b.ToTable("Places");
                 });
 
             modelBuilder.Entity("Travel.Models.Select", b =>
@@ -334,7 +337,7 @@ namespace Travel.Migrations
 
                     b.HasIndex("PlaceId");
 
-                    b.ToTable("Selects", (string)null);
+                    b.ToTable("Selects");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Travel.Models
 {
+    [Display(Name = "Обране")]
     public class Select
     {
         [Key]
@@ -16,5 +17,8 @@ namespace Travel.Models
         public int PlaceId { get; set; } // Ім'я класа і ID дають FOREIGN KEY (зовнішній ключ).
 
         public Place? Place { get; set; } // Зв'язок з таблицею Places.
+
+        [Display(Name = "Обрано")]
+        public bool IsSelected { get; set; } = false;
     }
 }
