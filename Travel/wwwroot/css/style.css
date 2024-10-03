@@ -1,6 +1,23 @@
 ﻿body {
 }
 
+main {
+    background-color: white;
+    padding: 20px;
+    margin: 0;
+    overflow: auto;
+    min-height: 90vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+}
+
+#search {
+    display: flex;
+    justify-content: center;
+}
+
 .placesIndexImage {
     width: 100px;
 }
@@ -45,8 +62,6 @@
     margin: 20px 0;
     padding: 10px;
     overflow: auto;
-    /*display: grid;
-    grid-template-columns: 20% 1fr;*/
     display: flex;
     flex-wrap: wrap;
 }
@@ -60,3 +75,8 @@
     flex-grow: 1;
 }
 
+footer .container div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}

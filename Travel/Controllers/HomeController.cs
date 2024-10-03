@@ -126,6 +126,13 @@ namespace Travel.Controllers
             return View();
         }
 
+        [Route("/Home/HandleError/{code:int}")]
+        public IActionResult HandleError(int code)
+        {
+            ViewData["ErrorMessage"] = $"Відбулась помилка. Код помилки: {code}";
+            return View("~/Views/Shared/HandleError.cshtml");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

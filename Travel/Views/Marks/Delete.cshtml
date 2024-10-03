@@ -1,14 +1,14 @@
 ﻿@model Travel.Models.Mark
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Вилучити";
 }
 
-<h1>Delete</h1>
+<h1>Вилучити</h1>
 
-<h3>Are you sure you want to delete this?</h3>
+<h3>Ви впевнені, що хочете вилучити це?</h3>
 <div>
-    <h4>Mark</h4>
+    <h4>Оцінка</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -45,7 +45,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Вилучити" class="btn btn-danger" /> |
+        <a asp-action="Index">Повернутись до списку</a>
     </form>
 </div>

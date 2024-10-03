@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Travel.Controllers;
 
@@ -21,13 +22,15 @@ public class AccountController : Controller
     private readonly ISmsSender _smsSender;
     private readonly ILogger _logger;
     private readonly int _maxUsersQuantity;
+    private readonly ApplicationDbContext _context;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IEmailSender emailSender,
         ISmsSender smsSender,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory, 
+        ApplicationDbContext context)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -35,6 +38,7 @@ public class AccountController : Controller
         _smsSender = smsSender;
         _logger = loggerFactory.CreateLogger<AccountController>();
         _maxUsersQuantity = 1000;
+        _context = context;
     }
 
     //
@@ -538,6 +542,64 @@ public class AccountController : Controller
             ModelState.AddModelError(string.Empty, "Invalid code.");
             return View(model);
         }
+    }
+
+    // GET: /Account/AccessDenied
+    [HttpGet]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
+    // GET: /Account/ConfirmDelete
+    [HttpGet]
+    public async Task<IActionResult> ConfirmDelete()
+    {
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return View("Error", new ErrorViewModel());
+        }
+        return View(currentUser);
+    }
+
+    // POST: /Account/DeleteConfirmed
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(string Id)
+    {
+        var user = await _userManager.FindByIdAsync(Id);
+        if (user == null)
+        {
+            // Handle user not found
+            return NotFound();
+        }
+        Place? place = _context.Places
+            .Where(p => p.ApplicationUserId == user.Id).FirstOrDefault();
+        if (place != null)
+        {
+            ViewData["ErrorMessage"] = "Не можна вилучити обліковий запис, " +
+                    "поки у користувача є цікаві місця.";
+            return View("HandleError");
+        }
+        var result = await _userManager.DeleteAsync(user);
+        if (result.Succeeded)
+        {
+            // Deletion successful
+            // Redirect or show a success message
+            await _signInManager.SignOutAsync();
+        }
+        else
+        {
+            // Handle errors
+            foreach (var error in result.Errors)
+            {
+                // Handle each error as needed
+                ViewData["ErrorMessage"] += error.Description;
+                return View("HandleError");
+            }
+        }
+        return RedirectToAction("Index", "Home");
     }
 
     #region Helpers

@@ -95,6 +95,9 @@ namespace Travel
 
             app.UseRouting();
 
+            // Обробка StatusCodes.
+            app.UseStatusCodePagesWithReExecute("/Home/HandleError/{0}");
+
             // Підключення аутентифікації.
             app.UseAuthentication();
             app.UseAuthorization();

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Travel.Models.Place>
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Сайт подорожей";
 }
 
 @* <div class="text-center">
@@ -12,11 +12,13 @@
 <h1>Сайт подорожей</h1>
 <h2>Цікаві місця</h2>
 
-<form asp-controller="Home" asp-action="Search" method="get">
-    <input id="countrySearch" type="text" name="country" class="form-text" placeholder="Країна" />
-    <input id="citySearch" type="text" name="city" class="form-text" placeholder="Місто" />
-    <input type="submit" value="Пошук" class="btn btn-primary" />
-</form>
+<div id="search">
+    <form asp-controller="Home" asp-action="Search" method="get" class="custom-form">
+        <input id="countrySearch" type="text" name="country" class="form-text" placeholder="Країна" />
+        <input id="citySearch" type="text" name="city" class="form-text" placeholder="Місто" />
+        <input type="submit" value="Пошук" class="btn btn-primary" />
+    </form>
+</div>
 
 <div id="places">
     @foreach (Place? place in Model)

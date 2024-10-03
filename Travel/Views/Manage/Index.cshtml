@@ -21,7 +21,7 @@
                 <text>[&nbsp;&nbsp;<a asp-controller="Manage" asp-action="SetPassword">Create</a>&nbsp;&nbsp;]</text>
             }
         </dd>
-        <dt>External Logins:</dt>
+        @* <dt>External Logins:</dt>
         <dd>
             @Model.Logins.Count [&nbsp;&nbsp;<a asp-controller="Manage" asp-action="ManageLogins">Manage</a>&nbsp;&nbsp;]
         </dd>
@@ -81,6 +81,10 @@
                     Generate [<button type="submit" class="btn-link">Generate new recovery codes</button>]
                 </form>
             }
+        </dd> *@
+        <dt>Вилучення облікового запису</dt>
+        <dd>
+            <a asp-controller="Account" asp-action="ConfirmDelete">Вилучити обліковий запис</a>
         </dd>
     </dl>
 </div>
