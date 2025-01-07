@@ -21,22 +21,25 @@
 </div>
 
 <div id="places">
-    @foreach (Place? place in Model)
+    @if (Model != null)
     {
-        <div class="placeCard shadow-lg">
-            <a asp-action="Details" asp-route-id="@place.Id">
-                <div>
-                    <div class="photograph">
-                        @if (place.Data != null)
-                        {
-                            <img class="placesDetailsImage"
-                                 src="data:image/jpeg;base64,@(Convert.ToBase64String(place.Data))" />
-                        }
+        @foreach (Place? place in Model)
+        {
+            <div class="placeCard shadow-lg">
+                <a asp-action="Details" asp-route-id="@place.Id">
+                    <div>
+                        <div class="photograph">
+                            @if (place.Data != null)
+                            {
+                                <img class="placesDetailsImage"
+                                     src="data:image/jpeg;base64,@(Convert.ToBase64String(place.Data))" />
+                            }
+                        </div>
+                        <p>@place.Name</p>
                     </div>
-                    <p>@place.Name</p>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+        }
     }
 </div>
 

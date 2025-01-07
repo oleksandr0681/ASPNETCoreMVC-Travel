@@ -28,7 +28,14 @@ namespace Travel.Controllers
                 .Where(p => p.ApplicationUser != null && p.IsConfirmed == true)
                 .Include(p => p.ApplicationUser)
                 .OrderBy(p => p.Country).ThenBy(p => p.City);
-            return View(places.ToList());
+            if (country != null)
+            {
+                return View(places.ToList());
+            }
+            else
+            {
+                return View(null);
+            }
         }
 
         // GET: Home/Details/5
